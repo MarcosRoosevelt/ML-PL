@@ -1,7 +1,8 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
-def trainTestSplit():
+def trainTestSplit(test_size=0.2, random_state=42):
     df = pd.read_csv("all_data.csv")
 
     bettingStats = ["B365H", "B365D", "B365A", "BWH", "BWD", "BWA", "GBH", "GBD", "GBA", "IWH", "IWD", "IWA", "LBH",
@@ -19,31 +20,15 @@ def trainTestSplit():
 
     df.drop(bettingStats + genDropInfo + overfittingData, axis=1, inplace=True)
 
-    seasons = sorted(df['season'].unique())
-    dfs = []
+    df = df.dropna(subset=nanFeatures)
 
-    for season in seasons:
-        tempDF = df[(df['season'] == (season))]
-        tempDF = tempDF.dropna(subset=nanFeatures)
-        dfs.append(tempDF)
+    Y = df["FTR"]
+    X = df.drop(columns=["FTR", "season"])
 
-    df = pd.concat(dfs)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, Y, test_size=test_size, random_state=random_state, stratify=Y
+    )
 
-    Y = df[["FTR"]]
-    X = df.drop(columns=["FTR"])
+    return X_train, X_test, y_train.values.ravel(), y_test.values.ravel()
 
-    train_seasons = [f'{year}-{year + 1}' for year in range(2005, 2014)]
-    test_seasons = [f'{year}-{year + 1}' for year in range(2014, 2016)]
-
-    train_mask = X['season'].isin(train_seasons)
-    test_mask = X['season'].isin(test_seasons)
-
-    XTrain = X[train_mask].copy()
-    XTest = X[test_mask].copy()
-    YTrain = Y[train_mask].copy()
-    YTest = Y[test_mask].copy()
-
-    XTrain = XTrain.drop(columns=['season'])
-    XTest = XTest.drop(columns=['season'])
-
-    return XTrain, XTest, YTrain.values.ravel(), YTest.values.ravel()
+    
