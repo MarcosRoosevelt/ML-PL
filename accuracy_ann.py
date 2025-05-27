@@ -13,7 +13,7 @@ def getAccuracyANN():
     le = LabelEncoder()
     y_train_encoded = le.fit_transform(y_train)
 
-    model = MLPClassifier(hidden_layer_sizes=(100,), max_iter=300, random_state=42)
+    model = MLPClassifier(hidden_layer_sizes=(100,), max_iter=300, random_state=30)
 
     model.fit(X_train, y_train_encoded)
     y_pred_encoded = model.predict(X_test)
